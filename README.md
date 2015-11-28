@@ -11,6 +11,11 @@ Latest Updates
 
 <https://gitlab.com/joolean/r6rs-protobuf/blob/master/CHANGELOG.txt>
 
+Discussion
+----------
+
+Visit the [discussion group](https://groups.google.com/forum/#!forum/r6rs-protobuf).
+
 Documentation
 -------------
 
