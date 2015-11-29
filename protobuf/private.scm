@@ -1,5 +1,5 @@
 ;; private.scm: private definitions and support API for r6rs-protobuf
-;; Copyright (C) 2014 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -62,14 +62,16 @@
 
 	  protobuf:register-extension
 
+	  protobuf:message-builder?
 	  protobuf:message-builder-build
 	  protobuf:message-builder-field
 	  protobuf:clear-message-builder-extension!
 	  protobuf:message-builder-extension
 	  protobuf:message-builder-has-extension?
 	  protobuf:set-message-builder-extension!
-	  
+
 	  protobuf:make-message
+	  protobuf:message?
 	  protobuf:message-extension
 	  protobuf:message-field
 	  protobuf:message-has-extension?
