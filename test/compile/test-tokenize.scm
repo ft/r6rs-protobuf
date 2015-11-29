@@ -1,5 +1,5 @@
 ;; test-tokenize.scm: lexer test routines for r6rs-protobuf
-;; Copyright (C) 2012 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -106,9 +106,13 @@
 (test-end "literals")
 
 (test-begin "comments")
+
 (test-equal '((STRING-LITERAL . "foo")) (token-pairs "\"foo\" // Comment"))
 (test-equal '((STRING-LITERAL . "foo") (STRING-LITERAL . "bar")) 
 	    (token-pairs "\"foo\" // Comment\n\"bar\""))
+(test-equal '((STRING-LITERAL . "foo") (STRING-LITERAL . "bar"))
+	    (token-pairs "\"foo\" /* Comment */ \"bar\""))
+
 (test-end "comments")
 
 (test-end "protobuf:tokenize")

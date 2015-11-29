@@ -1,5 +1,5 @@
 ;; tokenize.scm: .proto tokenization routines for r6rs-protobuf
-;; Copyright (C) 2012 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -164,6 +164,13 @@
 	(let ((c (lexer:read-char)))
 	  (or (eof-object? c) (eqv? #\newline c) (until-newline))))
 
+      (define (consume-block-comment)
+	(lexer:read-char)
+	(let loop ()
+	  (if (eqv? (lexer:read-char) #\*)
+	      (unless (eqv? (lexer:read-char) #\/) (loop))
+	      (loop))))
+
       (let ((c (lexer:peek-char)))
 	(cond ((eof-object? c) #f)
 	      ((eqv? c #\/)
@@ -171,6 +178,7 @@
 	       (let ((c (lexer:peek-char)))
 		 (cond ((eof-object? c) #f)
 		       ((eqv? c #\/) (until-newline) #t)
+		       ((eqv? c #\*) (consume-block-comment) #t)
 		       (else (lexer:unread-char c)))))
 	      (else #f))))
     
