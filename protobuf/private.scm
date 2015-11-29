@@ -439,13 +439,13 @@
 
   (define (int32? obj) 
     (and (integer? obj) (>= obj -2147483648) (<= obj 2147483647)))
-  (define (uint32? obj) (and (integer? obj) (>= obj 0) (<= 4294967295)))
+  (define (uint32? obj) (and (integer? obj) (>= obj 0) (<= obj 4294967295)))
   (define (int64? obj)
     (and (integer? obj) 
 	 (>= obj -9223372036854775808) 
 	 (<= obj 9223372036854775807)))
   (define (uint64? obj) 
-    (and (integer? obj) (>= obj 0) (<= 18446744073709551615)))
+    (and (integer? obj) (>= obj 0) (<= obj 18446744073709551615)))
   
   (define protobuf:field-type-double 
     (protobuf:make-field-type-descriptor 

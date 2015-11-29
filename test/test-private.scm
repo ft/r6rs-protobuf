@@ -1,5 +1,5 @@
 ;; test-private.scm: private API test routines for r6rs-protobuf
-;; Copyright (C) 2011 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -128,5 +128,27 @@
 	(test-equal 3 counter)))))
 
 (test-end "write")
+
+(test-begin "predicates")
+
+(test-group "uint32"
+  (let ((uint32? (protobuf:field-type-descriptor-predicate
+		  protobuf:field-type-uint32)))
+    (test-assert (uint32? 0))
+    (test-assert (uint32? 4294967295))
+    (test-assert (not (uint32? -1)))
+    (test-assert (not (uint32? 0.5)))
+    (test-assert (not (uint32? 4294967296)))))
+
+(test-group "uint64"
+  (let ((uint64? (protobuf:field-type-descriptor-predicate
+		  protobuf:field-type-uint64)))
+    (test-assert (uint64? 0))
+    (test-assert (uint64? 18446744073709551615))
+    (test-assert (not (uint64? -1)))
+    (test-assert (not (uint64? 0.5)))
+    (test-assert (not (uint64? 18446744073709551616)))))
+
+(test-end "predicates")
 
 (test-end "private")
