@@ -62,6 +62,7 @@
 
 	  protobuf:register-extension
 
+	  protobuf:message-builder
 	  protobuf:message-builder?
 	  protobuf:message-builder-build
 	  protobuf:message-builder-field
@@ -70,6 +71,7 @@
 	  protobuf:message-builder-has-extension?
 	  protobuf:set-message-builder-extension!
 
+	  protobuf:message
 	  protobuf:make-message
 	  protobuf:message?
 	  protobuf:message-extension
