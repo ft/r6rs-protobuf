@@ -1,5 +1,5 @@
 ;; resolve.scm: Validation and type resolution routines for r6rs-protobuf
-;; Copyright (C) 2012 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -19,7 +19,7 @@
 (library (protobuf compile resolve)
   (export protoc:resolve)
   (import (rnrs)
-	  (srfi :13)
+	  (only (srfi :13) string-index-right string-prefix? string-tokenize)
 	  (srfi :14)
 	  (protobuf compile conditions)
 	  (protobuf compile parse)

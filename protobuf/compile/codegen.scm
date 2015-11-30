@@ -1,5 +1,5 @@
 ;; codegen.scm: code generation API for r6rs-protobuf
-;; Copyright (C) 2014 Julian Graham
+;; Copyright (C) 2015 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -38,7 +38,7 @@
   (import (rnrs)
 	  (protobuf compile parse)
 	  (protobuf private)
-	  (srfi :13)
+	  (only (srfi :13) string-tokenize)
 	  (srfi :14))
 
   (define-record-type (protoc:extension-naming-context
