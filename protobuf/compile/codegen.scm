@@ -1,5 +1,5 @@
 ;; codegen.scm: code generation API for r6rs-protobuf
-;; Copyright (C) 2015 Julian Graham
+;; Copyright (C) 2016 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -558,10 +558,11 @@
 		      (loop (cdr fields) bindings)))))
 	
 	(define (,(extension-accessor-name message) ,e0 ,e1)
-	  (protobuf:message-extension ,e0 ,(message-type-name message) ,e1))
+	  (protobuf:message-extension
+	   ,e0 (record-type-descriptor ,(message-type-name message)) ,e1))
 	(define (,(extension-has-name message) ,e0 ,e1)
 	  (protobuf:message-has-extension? 
-	   ,e0 ,(message-type-name message) ,e1))
+	   ,e0 (record-type-descriptor ,(message-type-name message)) ,e1))
 	(define (,(message-writer-name message) ,w0 ,w1)
 	  (protobuf:message-write ,w0 ,w1))
 	(define (,(message-reader-name message) ,r0)
