@@ -202,6 +202,19 @@
 (test-begin "parse")
 (test-begin "simple")
 
+(test-group "option"
+  (let* ((p ((protoc:make-parser
+	      (mock-lexer 'OPTION '(IDENTIFIER . "java_package") 'EQUAL
+			  '(STRING-LITERAL . "com.example.foo") 'SEMICOLON
+			  'PACKAGE '(IDENTIFIER . "foo") 'SEMICOLON))))
+	 (target-root-package (protoc:make-package #f #f))
+	 (q (protoc:make-package "foo" target-root-package)))
+    (protoc:set-package-subpackages!
+     target-root-package 
+     (cons q (protoc:package-subpackages target-root-package)))
+    (test-assert 
+     (proto-definition-equal? (protoc:make-proto target-root-package) p))))
+
 (test-group "package"
   (let* ((p ((protoc:make-parser 
 	      (mock-lexer 'PACKAGE '(IDENTIFIER . "foo") 'SEMICOLON))))

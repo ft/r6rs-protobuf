@@ -575,6 +575,10 @@
 
     (define (parse-proto)
       (define (parse-proto-elements)
+	(define (ignore-until-semicolon)
+	  (get-token)
+	  (or (eq? current-category 'SEMICOLON) (ignore-until-semicolon)))
+	    	
 	(get-token)
 	(case current-category
 	  ((ENUM) 
@@ -596,6 +600,7 @@
 	      current-package (cons message (protoc:package-definitions 
 					     current-package))))
 	   (parse-proto-elements))
+	  ((OPTION) (ignore-until-semicolon) (parse-proto-elements))
 	  ((PACKAGE) (parse-package) (parse-proto-elements))
 	  ((*eoi*) proto)
 	  (else (unexpected-token-error))))
