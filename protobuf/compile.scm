@@ -1,7 +1,7 @@
 ;; compile: r6rs-protobuf compiler front-end
-;; Copyright (C) 2012 Julian Graham
+;; Copyright (C) 2016 Julian Graham
 
-;; SCSS is free software: you can redistribute it and/or modify
+;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation, either version 3 of the License, or
 ;; (at your option) any later version.
