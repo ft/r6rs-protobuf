@@ -15,9 +15,9 @@ main protobuf project page at http://code.google.com/p/protobuf/.
 Requirements
 ============
 
-This library requires a Scheme platform capable of importing R6RS library 
-forms. Additionally, SRFI-13 ("String Library") and SRFI-14 ("Character Set 
-Library") are required.
+This library requires a Scheme platform capable of importing R6RS
+library forms. Additionally, SRFI-1 ("List Library"), SRFI-13 ("String
+Library") and SRFI-14 ("Character Set Library") are required.
 
 SRFI-64 ("A Scheme API for test suites") is required to run the included unit 
 tests.
@@ -150,8 +150,8 @@ Use of the builder API follows the following pattern:
 For example:
 
   (define mdsb (make-MyDataStructure-builder))
-  (set-MyDataStructure-builder-foo! '("a" "b" "c"))
-  (define mds (MyDataStructure-builder-build))
+  (set-MyDataStructure-builder-foo! mdsb '("a" "b" "c"))
+  (define mds (MyDataStructure-builder-build mdsb))
   (MyDataStructure-foo mds)
   => #("a" "b" "c")
 

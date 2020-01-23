@@ -35,9 +35,10 @@
 	  protoc:generate-enum
 	  protoc:generate-extension
 	  protoc:generate-builder)
-  (import (rnrs)
+  (import (except (rnrs) map)
 	  (protobuf compile parse)
 	  (protobuf private)
+	  (rename (only (srfi :1) map-in-order) (map-in-order map))
 	  (only (srfi :13) string-tokenize)
 	  (srfi :14))
 
@@ -75,6 +76,7 @@
 
 	    field-accessor-name
 	    field-mutator-name
+	    field-internal-mutator-name
 	    field-clear-name
 	    field-has-name
 
@@ -197,6 +199,10 @@
        (string->symbol 
 	(string-append "set-" (default-message-builder-name message) "-"
 		       (protoc:field-definition-name field) "!")))
+     (lambda (message field)
+       (string->symbol
+	(string-append (default-message-builder-name message) "-"
+		       (protoc:field-definition-name field) "-set!")))
      (lambda (message field)
        (string->symbol 
 	(string-append "clear-" (default-message-builder-name message) "-"
@@ -495,7 +501,7 @@
     (define enum-value-name
       (protoc:enum-naming-context-value-name enum-naming-context))
 
-    (let-values (((e0 e1) (gensym-values 'e0 'e1)))	  
+    (let-values (((e0 e1) (gensym-values 'e0 (enum-type-name enum))))
       (let ((values (map (lambda (value) (enum-value-name enum value))
 			 (protoc:enum-definition-values enum))))
 	`((define-enumeration ,(enum-type-name enum) 
@@ -660,7 +666,8 @@
 	    (get-bytevector-n ,p0 (protobuf:read-varint ,p0)))))
 	,(message-predicate-name 
 	  (protobuf:message-field-type-descriptor-definition descriptor))
-	,(protobuf:field-type-descriptor-default descriptor)))
+	,(protobuf:field-type-descriptor-default descriptor)
+	#f))
     
     (define (enum-field-type-descriptor-expr descriptor)
       (define enum 
@@ -689,7 +696,8 @@
 		   (protoc:enum-definition-values enum))))
 	,(enum-predicate-name
 	  (protobuf:enum-field-type-descriptor-definition descriptor))
-	,(protobuf:field-type-descriptor-default descriptor)))
+	,(protobuf:field-type-descriptor-default descriptor)
+	#f))
     
     (let ((descriptor (protoc:type-reference-descriptor type-ref)))	
       (cond
@@ -802,6 +810,8 @@
        builder-naming-context))
     (define field-mutator-name
       (protoc:builder-naming-context-field-mutator-name builder-naming-context))
+    (define field-internal-mutator-name
+      (protoc:builder-naming-context-field-internal-mutator-name builder-naming-context))
     (define field-has-name
       (protoc:builder-naming-context-field-has-name builder-naming-context))
     (define field-clear-name
@@ -855,9 +865,9 @@
 	`((define-record-type (,(builder-type-name message)
 			       ,(builder-constructor-name message)
 			       ,(builder-predicate-name message))
-	    (fields 
+	    (fields
 	     ,@(map (lambda (field)
-		      (let-values (((m0) (gensym-values 'm0)))
+		      (let ((m0 (field-internal-mutator-name message field)))
 			(hashtable-set! field-internal-mutators field m0)
 			(let ((name (protoc:field-definition-name field)))
 			  (list 'mutable
