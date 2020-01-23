@@ -22,7 +22,12 @@
 	  protoc:make-lexical-token
 	  protoc:lexical-token-category
 	  protoc:lexical-token-source
-	  protoc:lexical-token-value)
+	  protoc:lexical-token-value
+
+	  protoc:source-location-input
+	  protoc:source-location-line
+	  protoc:source-location-column
+	  protoc:source-location-offset)
   (import (rnrs))
 
   (define-record-type (protoc:lexical-token 
@@ -272,6 +277,7 @@
 		       ((equal? ident "bool") (make-token 'BOOL))
 		       ((equal? ident "string") (make-token 'STRING))
 		       ((equal? ident "bytes") (make-token 'BYTES))
+		       ((equal? ident "syntax") (make-token 'SYNTAX))
 		       (else (make-token 'IDENTIFIER ident)))))
 	      (else (make-token 'SYMBOL (string c)))))))
 )

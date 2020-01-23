@@ -260,7 +260,7 @@
     (protocol 
      (lambda (p) 
        (lambda (name package . parent) 
-	 (p name (if (null? parent) #f (car parent)) package  '() '() '())))))
+	 (p name (if (null? parent) #f (car parent)) package  '() '())))))
   
   (define (merge-package! scope package) #f)
 
@@ -277,11 +277,18 @@
     (define token-stack (list))
 
     (define (unexpected-token-error)
-      (raise (condition 
-	      (make-assertion-violation)
-	      (make-message-condition 
-	       (string-append "Unexpected token: " 
-			      (symbol->string current-category))))))
+      (let ((source (protoc:lexical-token-source current-token)))
+	(raise (condition
+		(make-assertion-violation)
+		(make-message-condition
+		 (string-append "Unexpected token at line "
+				(number->string
+				 (+ 1 (protoc:source-location-line source)))
+				", column "
+				(number->string
+				 (protoc:source-location-column source))))
+		(make-irritants-condition
+		 (list current-category))))))
 
     (define (get-token) 
       (define (set-data token)
@@ -447,8 +454,13 @@
 	    (begin (unget-token current-token) #f)))
       
       (let ((type (parse-type)))
-	(assert-next-category 'IDENTIFIER)
-	(let ((field-name current-value))
+	(get-token)
+	(unless (memq current-category '(IDENTIFIER MESSAGE GROUP))
+	  (unexpected-token-error))
+	(let ((field-name (case current-category
+			    ((MESSAGE) "message")
+			    ((GROUP) "group")
+			    (else current-value))))
 	  (assert-next-category 'EQUAL)
 	  (assert-next-category 'NUM-INTEGER)
 	  (let* ((index current-value)
@@ -573,6 +585,14 @@
 	(assert-next-category 'LBRACE)
 	(parse-extension-element extension-def)))
 
+    (define (parse-syntax)
+      (assert-next-category 'EQUAL)
+      (assert-next-category 'STRING-LITERAL)
+      (unless (equal? current-value "proto2")
+	(assertion-violation 'parse-syntax "Unsupported syntax"
+			     current-value))
+      (assert-next-category 'SEMICOLON))
+
     (define (parse-proto)
       (define (parse-proto-elements)
 	(define (ignore-until-semicolon)
@@ -602,6 +622,7 @@
 	   (parse-proto-elements))
 	  ((OPTION) (ignore-until-semicolon) (parse-proto-elements))
 	  ((PACKAGE) (parse-package) (parse-proto-elements))
+	  ((SYNTAX) (parse-syntax) (parse-proto))
 	  ((*eoi*) proto)
 	  (else (unexpected-token-error))))
       

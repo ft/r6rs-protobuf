@@ -171,7 +171,8 @@
     (define (resolve-type-downwards name package)
       (define (strip-package-prefix name package-name)
 	(and (string-prefix? (string-append package-name ".") name)
-	     (substring name (+ (string-length package-name) 1))))
+	     (substring name (+ (string-length package-name) 1)
+	                (string-length name))))
       
       (let* ((package-name (protoc:package-name package))
 	     (package-relative-name
