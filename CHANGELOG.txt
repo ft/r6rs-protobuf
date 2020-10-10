@@ -1,3 +1,13 @@
+2020-10-10 version 0.9:
+
+  This release includes work from Göran Weinholt <goran@weinholt.se> to fix bugs
+  related to argument count mismatches in generated code. It also includes the
+  following changes:
+
+  * Fix encoding and decoding of negative `int32' and `int64' values.
+  * Fix tests to support running tests on Guile 3.x.
+
+
 2016-01-10 version 0.8:
 
   This release includes a number of fixes from Takashi Kato <ktakashi@ymail.com>
