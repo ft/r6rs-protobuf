@@ -1,5 +1,5 @@
 ;; private.scm: private definitions and support API for r6rs-protobuf
-;; Copyright (C) 2015 Julian Graham
+;; Copyright (C) 2020 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -130,6 +130,19 @@
 	    tally)))
     (read-varint-inner port 0 0))
 
+  (define (read-signed-varint port width)
+    (define (read-signed-varint-inner port tally septets)
+      (let* ((b (get-u8 port))
+	     (tally (bitwise-ior (bitwise-arithmetic-shift-left
+				  (bitwise-bit-field b 0 7) (* septets 7))
+				 tally)))
+	(if (bitwise-bit-set? b 7)
+	    (read-signed-varint-inner port tally (+ septets 1))
+	    (let ((sign-bit (bitwise-arithmetic-shift-left 1 (- width 1)))
+		  (mask (- (bitwise-arithmetic-shift 1 width) 1)))
+	      (- (bitwise-xor (bitwise-and tally mask) sign-bit) sign-bit)))))
+    (read-signed-varint-inner port 0 0))
+
   (define protobuf:read-varint read-varint)
 
   (define (protobuf:write-double port double)
@@ -142,8 +155,14 @@
       (bytevector-ieee-single-set! vec 0 float (endianness little))
       (put-bytevector port vec)))
 
-  (define (protobuf:write-int32 port int32) (protobuf:write-varint port int32))
-  (define (protobuf:write-int64 port int64) (protobuf:write-varint port int64))
+  (define (protobuf:write-int32 port int32)
+    (protobuf:write-varint port (if (< int32 0)
+				    (+ (bitwise-arithmetic-shift 1 64) int32)
+				    int32)))
+  (define (protobuf:write-int64 port int64)
+    (protobuf:write-varint port (if (< int64 0)
+				    (+ (bitwise-arithmetic-shift 1 64) int64)
+				    int64)))
   (define (protobuf:write-uint32 port uint32) 
     (protobuf:write-varint port uint32))
   (define (protobuf:write-uint64 port uint64) 
@@ -191,8 +210,8 @@
   (define (read-float port) 
     (bytevector-ieee-single-ref 
      (get-bytevector-n port 4) 0 (endianness little)))
-  (define (read-int32 port) (read-varint port))
-  (define (read-int64 port) (read-varint port))
+  (define (read-int32 port) (read-signed-varint port 32))
+  (define (read-int64 port) (read-signed-varint port 64))
   (define (read-uint32 port) (read-varint port))
   (define (read-uint64 port) (read-varint port))
   (define (read-sint32 port) (zigzag-decode (read-varint port) 32))

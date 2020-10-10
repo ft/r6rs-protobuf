@@ -1,5 +1,5 @@
 ;; test-private.scm: private API test routines for r6rs-protobuf
-;; Copyright (C) 2015 Julian Graham
+;; Copyright (C) 2020 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -42,43 +42,50 @@
 
 (test-begin "unknown-fields")
 (test-group "varint"
-  (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
     (protobuf:write-varint bv-out (make-field-header 1 0))
     (protobuf:write-varint bv-out 256)
     (protobuf:write-varint bv-out (make-field-header 0 2))
     (protobuf:write-string bv-out "Test")
     (let ((m (protobuf:message-read 
 	      (make-read-test-message-builder)
-	      (open-bytevector-input-port (bv-transcoder)))))
+	      (open-bytevector-input-port (bv-proc)))))
       (test-assert (read-test-message? m))
       (test-equal "Test" (read-test-message-foo m)))))
 
 (test-group "64-bit"
-  (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
     (protobuf:write-varint bv-out (make-field-header 1 1))
     (protobuf:write-fixed64 bv-out 256)
     (protobuf:write-varint bv-out (make-field-header 0 2))
     (protobuf:write-string bv-out "Test")
     (let ((m (protobuf:message-read 
 	      (make-read-test-message-builder)
-	      (open-bytevector-input-port (bv-transcoder)))))
+	      (open-bytevector-input-port (bv-proc)))))
       (test-assert (read-test-message? m))
-      (test-equal "Test" (read-test-message-foo m)))))
+      (test-equal "Test" (read-test-message-foo m))))
+
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
+    (protobuf:write-int64 bv-out -1)
+    (let ((b (bv-proc)))
+      (test-assert
+       (bytevector=?
+	b #vu8(#xff #xff #xff #xff #xff #xff #xff #xff #xff #x01))))))
 
 (test-group "length-delimited"
-  (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
     (protobuf:write-varint bv-out (make-field-header 1 2))
     (protobuf:write-string bv-out "Ignore")
     (protobuf:write-varint bv-out (make-field-header 0 2))
     (protobuf:write-string bv-out "Test")
     (let ((m (protobuf:message-read 
 	      (make-read-test-message-builder)
-	      (open-bytevector-input-port (bv-transcoder)))))
+	      (open-bytevector-input-port (bv-proc)))))
       (test-assert (read-test-message? m))
       (test-equal "Test" (read-test-message-foo m)))))
 
 (test-group "groups"
-  (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
     (protobuf:write-varint bv-out (make-field-header 1 3))
     (protobuf:write-string bv-out "[group contents]")
     (protobuf:write-varint bv-out (make-field-header 1 4))
@@ -86,21 +93,28 @@
     (protobuf:write-string bv-out "Test")
     (let ((m (protobuf:message-read 
 	      (make-read-test-message-builder)
-	      (open-bytevector-input-port (bv-transcoder)))))
+	      (open-bytevector-input-port (bv-proc)))))
       (test-assert (read-test-message? m))
       (test-equal "Test" (read-test-message-foo m)))))
 
 (test-group "32-bit"
-  (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
     (protobuf:write-varint bv-out (make-field-header 1 5))
     (protobuf:write-fixed32 bv-out 256)
     (protobuf:write-varint bv-out (make-field-header 0 2))
     (protobuf:write-string bv-out "Test")
     (let ((m (protobuf:message-read 
 	      (make-read-test-message-builder)
-	      (open-bytevector-input-port (bv-transcoder)))))
+	      (open-bytevector-input-port (bv-proc)))))
       (test-assert (read-test-message? m))
-      (test-equal "Test" (read-test-message-foo m)))))
+      (test-equal "Test" (read-test-message-foo m))))
+
+  (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
+    (protobuf:write-int32 bv-out -1)
+    (let ((b (bv-proc)))
+      (test-assert
+       (bytevector=?
+	b #vu8(#xff #xff #xff #xff #xff #xff #xff #xff #xff #x01))))))
 
 (test-end "unknown-fields")
 (test-end "read")
@@ -123,7 +137,7 @@
 		      (vector 1 2 3)))
 	       (make-eqv-hashtable))))
 
-      (let-values (((bv-out bv-transcoder) (open-bytevector-output-port)))
+      (let-values (((bv-out bv-proc) (open-bytevector-output-port)))
 	(protobuf:message-write m bv-out)
 	(test-equal 3 counter)))))
 
