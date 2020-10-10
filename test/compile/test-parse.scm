@@ -1,5 +1,5 @@
 ;; test-parse.scm: parser test routines for r6rs-protobuf
-;; Copyright (C) 2011 Julian Graham
+;; Copyright (C) 2020 Julian Graham
 
 ;; r6rs-protobuf is free software: you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -295,7 +295,7 @@
      q (list (protoc:make-field-definition 
 	      q 'required (protoc:make-type-reference 
 			   "Foo" (protobuf:make-message-field-type-descriptor 
-				  q))
+				  q #f #f #f #f #f #f))
 	      "foo" 1))))
 )
 
